@@ -1,0 +1,14 @@
+
+# Exception to plots directory ignore
+# This is actually kind of weird but also required
+
+plots/*
+!plots/annual
+plots/annual/*
+!plots/annual/.gitkeep
+
+.config/*
+!.config/.gitkeep
+
+stream_cache/*
+!stream_cache/.gitkeep
