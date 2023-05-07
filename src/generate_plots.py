@@ -62,7 +62,7 @@ def create_annual_plots(activities: pd.DataFrame):
     transparent_background = True
     for i in range(len(subjects)):
         filename = plot_base_filepath + f"annual/{subjects[i]}.png"
-        plots[i].save(filename=filename, format="png", height=9, width=16, transparent=transparent_background)
+        plots[i].save(filename=filename, format="png", height=9, width=22, transparent=transparent_background)
 
 
 def create_stream_plots(stream: pd.DataFrame, date: datetime.date):
@@ -107,8 +107,11 @@ def create_stream_plots(stream: pd.DataFrame, date: datetime.date):
     # Create a single image from the plots
     id = stream.iloc[0]["id"]
     with open(plot_base_filepath + f"summary_{date.isoformat()}_{id}.png", "wb") as fp:
-        combine_plots_vertical(["velocity_plot.png", "heartrate_plot.png", "heartrate_zone_plot.png",
-                                "zone_plot.png"]).save(fp=fp, format="png")
+        combine_plots_vertical(["velocity_plot.png", 
+                                "heartrate_plot.png", 
+                                "heartrate_zone_plot.png",
+                                "zone_plot.png"]
+                                ).save(fp=fp, format="png")
 
 
 def get_clean_stream(activities: pd.DataFrame, date: datetime.date, cache: Cache):
