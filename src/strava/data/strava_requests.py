@@ -148,8 +148,11 @@ def list_activities(activities: pd.DataFrame) -> None:
 def create_stream_df(data_str: str, activ_id: int) -> pd.DataFrame:
     """Create a dataframe from the Strava stream JSON, this includes adding a variable for the activity id."""
     stream_df = pd.DataFrame()
-    for k, v in json.loads(data_str).items():
-        stream_df[k] = v["data"]
+    if data_str is None:
+        return None
+    else:
+        for k, v in json.loads(data_str).items():
+            stream_df[k] = v["data"]
     stream_df["id"] = activ_id
     return stream_df
 
