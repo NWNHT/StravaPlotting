@@ -12,3 +12,5 @@ plots/annual/*
 
 stream_cache/*
 !stream_cache/.gitkeep
+
+activity_cache/*
