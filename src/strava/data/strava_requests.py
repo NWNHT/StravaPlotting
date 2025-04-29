@@ -181,7 +181,6 @@ def get_activity_detail(activities, activ_id: int, cache: Cache, include_all_eff
             print("Unable to find in cache and unable to retrieve from Strava.  Returning None.")
             return None
         else:
-            print('making cache record')
             cache.cache_json(activ_id=activ_id, text=response)
     else:
         print(f"Found activity {activ_id} in cache.")
