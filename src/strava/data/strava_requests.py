@@ -88,7 +88,8 @@ def get_activity_stream(activities, activ_id: int, cache: Cache, streams="distan
         else:
             cache.cache_json(activ_id=activ_id, text=response)
     else:
-        print(f"Found activity {activ_id} in cache.")
+        # print(f"Found activity {activ_id} in cache.")
+        pass
 
     # Read the file from the cache
     stream_resp = cache.retrieve_stream(activ_id=activ_id)
@@ -168,7 +169,6 @@ def request_activity(activity_id: int, include_all_efforts: bool=True):
 
 def get_activity_detail(activities, activ_id: int, cache: Cache, include_all_efforts: bool=True, ignore_cache=False) -> str | None:
     """Get the specified activity streams for the activity specified by id."""
-
     # Check that the activity id is in the list of activities, else return empty df
     if activ_id not in activities.id.array:
         print("Activity not found, not requesting stream.")
@@ -183,7 +183,8 @@ def get_activity_detail(activities, activ_id: int, cache: Cache, include_all_eff
         else:
             cache.cache_json(activ_id=activ_id, text=response)
     else:
-        print(f"Found activity {activ_id} in cache.")
+        # print(f"Found activity {activ_id} in cache.")
+        pass
 
     # Read the file from the cache
     stream_resp = cache.retrieve_stream(activ_id=activ_id)
