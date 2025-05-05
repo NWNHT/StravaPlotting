@@ -171,7 +171,7 @@ def get_activity_detail(activities, activ_id: int, cache: Cache, include_all_eff
     """Get the specified activity streams for the activity specified by id."""
     # Check that the activity id is in the list of activities, else return empty df
     if activ_id not in activities.id.array:
-        print("Activity not found, not requesting stream.")
+        print("Activity not found, not requesting detail.")
         return None
     
     # Check cache, if not present then request
