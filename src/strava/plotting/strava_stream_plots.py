@@ -60,6 +60,7 @@ class PlotTheme:
 
 
 pt = PlotTheme()
+pt.dark()
 
 plot_base_filepath = "../plots/"
 
@@ -108,7 +109,7 @@ def heartrate_zones(stream: pd.DataFrame, heartrate_max: int, zones: List[float]
             + gg.geom_rect(
         aes(xmin="distance/1000", xmax="distance_offset/1000", ymin=min_value * 0.9, ymax=max_value * 1.01,
             fill="factor(zones)"), alpha=0.5)
-            + gg.scale_fill_manual(values=zone_colors, guide=False)
+            + gg.scale_fill_manual(values=zone_colors, guide=None)
             + gg.geom_line(aes(y="heartrate"), color=pt.text, size=2.5)
             + gg.geom_hline(yintercept=zones, color=pt.yint, size=1.5)
             + gg.xlab("Distance [km]") + gg.ylab("Heartrate [bpm]") + gg.labs(fill="Zone")
@@ -116,11 +117,11 @@ def heartrate_zones(stream: pd.DataFrame, heartrate_max: int, zones: List[float]
             ggplot(stream)
             + gg.geom_bar(aes(x=1, fill="factor(zones)"), alpha=1)
             + gg.scale_x_continuous(expand=[0, 0])
-            + gg.scale_fill_manual(values=zone_colors, guide=False)
+            + gg.scale_fill_manual(values=zone_colors, guide=None)
             + gg.coord_flip()
             + gg.xlab("") + gg.ylab("")
             + pt.gg_theme() + gg.theme(axis_text_y=gg.element_blank(), axis_text_x=gg.element_blank(),
-                                       panel_grid=gg.element_blank(), plot_background=gg.element_blank()))
+                                       panel_grid=gg.element_blank()))
 
 
 def heartrate_with_altitude(stream: pd.DataFrame, rolling_average=10):
@@ -150,6 +151,9 @@ def heartrate_with_altitude(stream: pd.DataFrame, rolling_average=10):
 def velocity_with_altitude(stream: pd.DataFrame, rolling_average=30):
     """Plot velocity vs. distance with altitude in the background."""
     stream = copy.deepcopy(stream)
+
+    stream.rename({"velocity_smooth": "velocity"}, axis=1, inplace=True)
+    stream["velocity"] = stream["velocity"] * 3.6
     stream["velocity"] = stream["velocity"].rolling(rolling_average).mean()
     stream["altitude"] = stream["altitude"].rolling(10).mean()
     max_value = stream["velocity"].max()
@@ -178,6 +182,8 @@ def all_streams(stream: pd.DataFrame, rolling_average_hr=10, rolling_average_vel
     """Plot heartrate vs. distance with altitude in the background."""
     stream = copy.deepcopy(stream)
     stream["heartrate"] = stream["heartrate"].rolling(rolling_average_hr).mean()
+    stream.rename({"velocity_smooth": "velocity"}, axis=1, inplace=True)
+    stream["velocity"] = stream["velocity"] * 3.6
     stream["velocity"] = stream["velocity"].rolling(rolling_average_vel).mean()
     stream["altitude"] = stream["altitude"].rolling(10).mean()
 
