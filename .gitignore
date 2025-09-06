@@ -2,6 +2,8 @@
 # Exception to plots directory ignore
 # This is actually kind of weird but also required
 
+__pycache__/
+
 plots/*
 !plots/annual
 plots/annual/*

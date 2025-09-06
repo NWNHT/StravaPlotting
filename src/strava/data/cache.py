@@ -9,6 +9,8 @@ class Cache:
         if dir is None:
             # This assumes directory structure as used for Strava git directory
             self.dir = os.getcwd() + "/../stream_cache/"
+        else:
+            self.dir = dir
         # self.dir = "/Users/lucasnieuwenhout/Documents/Programming/Python/Projects/Strava/stream_cache/"
         self.contents = self.get_contents()
 

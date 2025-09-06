@@ -11,6 +11,7 @@ from PIL import Image
 stred = '#f83a07'
 light = "#ecffff"
 dark = "#103a5a"
+gray = "#AAAAAA"
 darkdarkgray = "#1c1d1c"
 heartrate_colour = stred
 velocity_colour = "blue"
@@ -38,7 +39,7 @@ class PlotTheme:
         self.strip = "gray"
 
     def light(self):
-        self.text = dark
+        self.text = gray
         self.background = light
         self.velocity = "blue"
         self.heartrate = stred
