@@ -24,7 +24,7 @@ def request_segment(segment_id: int):
     print(f"Received {len(stream_resp.content)} bytes.")
     return stream_resp
 
-def create_segment_catalog(activities: pd.DataFrame, activity_list: pd.DataFrame, activity_cache: Cache):
+def create_segment_catalog(activities: pd.DataFrame, activity_cache: Cache, activity_list: pd.DataFrame=None):
     """Create a catalog of the segments and efforts in activity_list.
 
     Args:
@@ -35,6 +35,9 @@ def create_segment_catalog(activities: pd.DataFrame, activity_list: pd.DataFrame
     Returns:
         dict: Dictionay of {segment_id: Segment}
     """
+
+    if activity_list is None:
+        activity_list = activities
 
     segments = {}
     # For each activity, get the activity detail 

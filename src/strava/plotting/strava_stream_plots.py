@@ -25,9 +25,9 @@ class PlotTheme:
         self.mode = mode
         self.text = self.background = self.velocity = self.heartrate = self.altitude = self.yint = self.strip = None
         if mode:
-            self.dark()
-        else:
             self.light()
+        else:
+            self.dark()
 
     def dark(self):
         self.text = light

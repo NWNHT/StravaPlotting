@@ -3,20 +3,21 @@ import pandas as pd
 import plotnine as gg
 
 from strava.plotting.strava_stream_plots import *
-pt.light()
+# pt.light()
 
-def segment_effort_graph(segment_catalog: pd.DataFrame, segment_id: int, segment_plot_path: str=None, previous_x: int=8, save_plot: bool=False):
+def segment_effort_graph(segment_catalog: pd.DataFrame, segment_id: int, segment_plot_path: None, previous_x: int=8):
     """Generaet recent segment effort graph from the segment id.
 
     Args:
-        segment_catalog (pd.DataFrame): Catalog of segments
-        segment_id (int): _description_
-        previous_x (int, optional): _description_. Defaults to 8.
-        save_plot (bool, optional): _description_. Defaults to False.
+        segment_catalog (pd.DataFrame): Catalog of segments.
+        segment_id (int): ID of the segment to plot.
+        previous_x (int, optional): The previous number of efforts to plot. Defaults to 8.
+        segment_plot_path (str, list(str)): Path(s) of locations to save the plot.
 
     Returns:
         _type_: _description_
     """
+    pt.light()
 
     # Check inputs
     if previous_x < 3:
@@ -54,8 +55,6 @@ def segment_effort_graph(segment_catalog: pd.DataFrame, segment_id: int, segment
     # Full Range
     xmax = plot_df.DateTimeIndex.max() + 0.5 * (previous_x / 8)
 
-    xlim = (xmin, xmax)
-
     # --- Y ---
     ymin = 0
     # Full Range
@@ -65,7 +64,10 @@ def segment_effort_graph(segment_catalog: pd.DataFrame, segment_id: int, segment
     ymin = plot_df_prev['MovingTime[s]'].min() * 0.9
     ymax = plot_df_prev['MovingTime[s]'].max() * 1.1
 
-    ylim = (ymin, ymax)
+    # --- PR ---
+    pr_effort, pr_time = segment.pr()
+    pr_label_df = pd.DataFrame({'x': [xmin], 'y': [pr_time - (pr_time / 200)], 'label': [f"{pr_effort.start_date_local.split('T')[0]}"]})
+    ymin = min(ymin, pr_time * 0.9)
 
     # --- Ribbon ---
     plot_df['xmin'] = xmin
@@ -83,13 +85,12 @@ def segment_effort_graph(segment_catalog: pd.DataFrame, segment_id: int, segment
     # --- Heartrate Points ---
     plot_df_prev['AverageHRPlot'] = plot_df_prev.AverageHR + plot_df_prev['MovingTime[s]'].mean() - plot_df_prev.AverageHR.mean()
 
-    # --- PR ---
-    pr_effort, pr_time = segment.pr()
-    pr_label_df = pd.DataFrame({'x': [xmin], 'y': [pr_time - (pr_time / 200)], 'label': [f"fastest: {pr_effort.start_date_local.split('T')[0]}"]})
-
     # --- Latest Effort Date ---
-    latest_effort_date = f"latest: {segment.latest_effort().start_date_local.split('T')[0]}"
+    latest_effort_date = f"{segment.latest_effort().start_date_local.split('T')[0]}"
     latest_effort_date_label_df = pd.DataFrame({'x': [plot_df.DateTimeIndex.max()], 'y': [ymin], 'label': [latest_effort_date]})
+
+    xlim = (xmin, xmax)
+    ylim = (ymin, ymax)
 
     # --- Plot ---
     g = (gg.ggplot()
@@ -127,10 +128,11 @@ def segment_effort_graph(segment_catalog: pd.DataFrame, segment_id: int, segment
         + gg.labs(x="", y="", title=segment_name, subtitle='.'.join(segment_link.split('.')[1:]))
     )
 
-    if save_plot and (segment_plot_path is None):
-        print("segment_plot_path not provided, plot not saved.")
-
-    if save_plot:
+    if type(segment_plot_path) is str:
         g.save(filename=segment_plot_path + f"{segment_id}.png")
+    
+    if type(segment_plot_path) is list:
+        for path in segment_plot_path:
+            g.save(filename=path + f"{segment_id}.png")
 
     return (g, segment_link)
