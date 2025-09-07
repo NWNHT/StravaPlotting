@@ -44,7 +44,7 @@ def _annual_plot_avgmax(activities: pd.DataFrame, subject: str) -> gg.ggplot:
     # Return plot
     return ggplot(activities, aes(x="date_year_agnostic")) \
         + gg.scale_x_datetime(date_breaks="1 month", date_labels="%b") \
-        + gg.scale_color_manual(values=[plot_colour, pt.text], guide=False) \
+        + gg.scale_color_manual(values=[plot_colour, pt.text], guide=None) \
         + gg.geom_point(aes(y="value", color="variable"), size=3) \
         + gg.geom_label(aes(y="value", label="label", color="variable"), fill=pt.background, x=label_date, size=18, ha="left", va='baseline') \
         + gg.facet_grid('. ~ year') \
@@ -69,8 +69,8 @@ def annual_time(activities: pd.DataFrame):
     return ggplot(activities, aes(x="time", y="average_speed", color="factor(year)", size="distance")) \
         + gg.geom_point(alpha=0.6) \
         + gg.scale_x_datetime(date_breaks="2 hour", date_labels="%H:%M") \
-        + gg.scale_color_manual(values=[pt.altitude, pt.velocity, pt.heartrate], guide=False) \
-        + gg.scale_size_continuous(range=(1, 7), guide=False) \
+        + gg.scale_color_manual(values=[pt.altitude, pt.velocity, pt.heartrate], guide=None) \
+        + gg.scale_size_continuous(range=(1, 7), guide=None) \
         + gg.labs(x="Time of Day", y="Average Speed [km/h]") \
         + pt.gg_theme() + annual_theme
 
