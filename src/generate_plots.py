@@ -35,6 +35,7 @@ def main():
 
     # Create the annual plots unless indicated otherwise
     if not args.stream_plots_only:
+        pt.background = None
         print("Creating annual plots...")
         # Create and save plots
         create_annual_plots(activities=activities, plot_filepath=plot_filepath)
