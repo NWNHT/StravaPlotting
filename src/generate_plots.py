@@ -3,11 +3,15 @@
 # This can be run as "./generate_plots.py ...", including any aguments
 
 from strava.data.strava_requests import *
+from strava.data.segment_access import *
 from strava.plotting.strava_annual_plots import *
 from strava.plotting.strava_stream_plots import *
+from strava.plotting.segment_plots import *
 
 import argparse
 import datetime
+import os
+
 import pandas as pd
 from warnings import filterwarnings
 
@@ -27,11 +31,13 @@ def main():
     # Request list of all activities
     activities = get_clean_activities()
 
+    plot_filepath = '../plots/'
+
     # Create the annual plots unless indicated otherwise
     if not args.stream_plots_only:
         print("Creating annual plots...")
         # Create and save plots
-        create_annual_plots(activities=activities)
+        create_annual_plots(activities=activities, plot_filepath=plot_filepath)
         print("...completed annual plots.")
 
     # Create the stream plots unless indicated otherwise
@@ -43,16 +49,20 @@ def main():
         print(f"Creating stream plots for activity {activity_id_by_date(activities=activities, date=args.date)} on date {args.date.isoformat()}...")
         # Create cache object
         cache = Cache()
+        activity_cache = Cache(dir='/Users/lucasnieuwenhout/Documents/Programming/Python/Projects/StravaPlotting/activity_cache/')
 
         # Get the stream for specified activity
         stream = get_clean_stream(activities=activities, date=args.date, cache=cache)
 
         # Create and save plots
-        create_stream_plots(stream=stream, date=args.date)
+        create_stream_plots(stream=stream, date=args.date, plot_filepath=plot_filepath)
         print("...completed stream plots.")
 
+        # Segment
+        create_segments(activities=activities, activity_cache=activity_cache, date=args.date)
 
-def create_annual_plots(activities: pd.DataFrame):
+
+def create_annual_plots(activities: pd.DataFrame, plot_filepath: str):
     """Create and save annual plots from data in activities dataframe"""
     # Create the annual plots
     subjects = ["heartrate", "speed", "distance", "elevation", "annual_time"]
@@ -61,11 +71,11 @@ def create_annual_plots(activities: pd.DataFrame):
     # Save the plots
     transparent_background = True
     for i in range(len(subjects)):
-        filename = plot_base_filepath + f"annual/{subjects[i]}.png"
+        filename = plot_filepath + f"annual/{subjects[i]}.png"
         plots[i].save(filename=filename, format="png", height=9, width=22, transparent=transparent_background)
 
 
-def create_stream_plots(stream: pd.DataFrame, date: datetime.date):
+def create_stream_plots(stream: pd.DataFrame, date: datetime.date, plot_filepath: str):
     """Create and save stream plots from data in the stream dataframe"""
     # Create plots
     heartrate_plot = heartrate_with_altitude(stream=stream)
@@ -78,27 +88,30 @@ def create_stream_plots(stream: pd.DataFrame, date: datetime.date):
     plot_width = 48
     transparent_background = True
 
-    heartrate_plot.save(filename=plot_base_filepath + "heartrate_plot.png",
+    # Component plot filepath
+    component_plot_filepath = plot_filepath + '/plot_components/'
+
+    heartrate_plot.save(filename=component_plot_filepath + "heartrate_plot.png",
                         format="png",
                         height=plot_height, width=plot_width,
                         limitsize=False,
                         transparent=transparent_background)
-    velocity_plot.save(filename=plot_base_filepath + "velocity_plot.png",
+    velocity_plot.save(filename=component_plot_filepath + "velocity_plot.png",
                        format="png",
                        height=plot_height, width=plot_width,
                        limitsize=False,
                        transparent=transparent_background)
-    heartrate_zone_plot.save(filename=plot_base_filepath + "heartrate_zone_plot.png",
+    heartrate_zone_plot.save(filename=component_plot_filepath + "heartrate_zone_plot.png",
                              format="png",
                              height=plot_height, width=plot_width,
                              limitsize=False,
                              transparent=transparent_background)
-    zone_plot.save(filename=plot_base_filepath + "zone_plot.png",
+    zone_plot.save(filename=component_plot_filepath + "zone_plot.png",
                    format="png",
                    height=4, width=48,
                    limitsize=False,
                    transparent=transparent_background)
-    summary.save(filename=plot_base_filepath + "stream_summary.png",
+    summary.save(filename=component_plot_filepath + "stream_summary.png",
                  format="png",
                  height=plot_height, width=plot_width,
                  limitsize=False,
@@ -106,12 +119,35 @@ def create_stream_plots(stream: pd.DataFrame, date: datetime.date):
 
     # Create a single image from the plots
     id = stream.iloc[0]["id"]
-    with open(plot_base_filepath + f"summary_{date.isoformat()}_{id}.png", "wb") as fp:
+    with open(plot_filepath + f"summary_{date.isoformat()}_{id}.png", "wb") as fp:
         combine_plots_vertical(["velocity_plot.png", 
                                 "heartrate_plot.png", 
                                 "heartrate_zone_plot.png",
                                 "zone_plot.png"]
                                 ).save(fp=fp, format="png")
+
+
+def create_segments(activities: pd.DataFrame, activity_cache: Cache, date: datetime.date):
+
+    # Set up paths
+    segments_path = r'/Users/lucasnieuwenhout/Documents/Programming/Python/Projects/StravaPlotting/plots/segments/'
+    latest_segments_path = r'/Users/lucasnieuwenhout/Documents/Programming/Python/Projects/StravaPlotting/plots/latest_segments/'
+    segment_save_paths = [segments_path, latest_segments_path]
+
+    # Create catalog of segments
+    segment_catalog = create_segment_catalog(activities, activity_cache)
+
+    # Retrieve segments and plot
+    ride_segments = segment_id_from_activity_date_and_index(activities=activities,
+                                                            activity_cache=activity_cache,
+                                                            activity_date=date,
+                                                            entire_list=True)
+    os.system(f'rm {latest_segments_path}*')
+    for segment_id in ride_segments:
+        segment_effort_graph(segment_catalog=segment_catalog,
+                            segment_id=segment_id,
+                            segment_plot_path=segment_save_paths,
+                            previous_x=8)
 
 
 def get_clean_stream(activities: pd.DataFrame, date: datetime.date, cache: Cache):

@@ -62,9 +62,6 @@ class PlotTheme:
 pt = PlotTheme()
 pt.dark()
 
-plot_base_filepath = "../plots/"
-
-
 def ybreaks(limits):
     """Utility to define the breaks for heartrate plots."""
     return [x for x in range(int(limits[0]), int(limits[1])) if (x % 10 == 0)]
@@ -201,9 +198,9 @@ def all_streams(stream: pd.DataFrame, rolling_average_hr=10, rolling_average_vel
            + pt.gg_theme() + gg.theme(axis_text_y=gg.element_blank())
 
 
-def combine_plots_vertical(images: List) -> Image.Image:
+def combine_plots_vertical(images: List, plot_filepath: str='../plots/') -> Image.Image:
     """Combine all of the stream plots into a single image."""
-    images = [Image.open(plot_base_filepath + x) for x in images]
+    images = [Image.open(plot_filepath + x) for x in images]
     widths, heights = zip(*(i.size for i in images))
 
     total_width = max(widths)
