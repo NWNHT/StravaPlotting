@@ -124,7 +124,8 @@ def create_stream_plots(stream: pd.DataFrame, date: datetime.date, plot_filepath
         combine_plots_vertical(["velocity_plot.png", 
                                 "heartrate_plot.png", 
                                 "heartrate_zone_plot.png",
-                                "zone_plot.png"]
+                                "zone_plot.png"],
+                               plot_filepath='../plots/plot_components/'
                                 ).save(fp=fp, format="png")
 
 
